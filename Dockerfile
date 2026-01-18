@@ -1,17 +1,17 @@
 # Build stage
 FROM gradle:7.6-jdk17 AS build
 WORKDIR /app
-# Copy the backend folder contents into the build image
+# Copy only the backend folder content
 COPY backend/ .
-# Fix the "Permission denied" error by making gradlew executable
+# Ensure the wrapper has executable permissions
 RUN chmod +x gradlew
-# Run the Gradle build to create the executable JAR
-RUN ./gradlew clean build -x test
+# Build with debugging info to see the exact error
+RUN ./gradlew build -x test --no-daemon --stacktrace --info
 
 # Run stage
 FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
-# Copy the JAR from the build stage (Gradle puts it in build/libs/)
-COPY --from=build /app/build/libs/*.jar app.jar
+# Only copy the main executable JAR (avoiding the "plain" jar)
+COPY --from=build /app/build/libs/*[!plain].jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","app.jar"]
