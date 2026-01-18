@@ -49,3 +49,12 @@ tasks.named('test') {
 springBoot {
     mainClass = 'com.example.backend.GalleryApplication'
 }
+// This tells Spring Boot which class to start
+springBoot {
+    mainClass = 'com.example.backend.GalleryApplication'
+}
+
+// This ensures the executable jar is always built
+bootJar {
+    archiveFileName = 'app.jar'
+}
