@@ -1,14 +1,15 @@
 # Build stage
 FROM gradle:7.6-jdk17 AS build
 WORKDIR /app
-# Copy everything from the root directly
 COPY . .
 RUN chmod +x gradlew
-RUN ./gradlew build -x test --no-daemon
+# We use bootJar specifically to create the executable file
+RUN ./gradlew bootJar -x test --no-daemon
 
 # Run stage
 FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
-COPY --from=build /app/build/libs/*[!plain].jar app.jar
+# Copy the specific app.jar we named in build.gradle
+COPY --from=build /app/build/libs/app.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
