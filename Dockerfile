@@ -3,6 +3,8 @@ FROM gradle:7.6-jdk17 AS build
 WORKDIR /app
 # Copy the backend folder contents into the build image
 COPY backend/ .
+# Fix the "Permission denied" error by making gradlew executable
+RUN chmod +x gradlew
 # Run the Gradle build to create the executable JAR
 RUN ./gradlew clean build -x test
 
