@@ -1,14 +1,15 @@
 # Build stage
-FROM maven:3.8.4-openjdk-17 AS build
-# Set the working directory to where your code is
+FROM gradle:7.6-jdk17 AS build
 WORKDIR /app
 # Copy the backend folder contents into the build image
 COPY backend/ .
-# Run the build inside the folder containing pom.xml
-RUN mvn clean package -DskipTests
+# Run the Gradle build to create the executable JAR
+RUN ./gradlew clean build -x test
 
 # Run stage
 FROM eclipse-temurin:17-jdk-alpine
-COPY --from=build /app/target/*.jar app.jar
+WORKDIR /app
+# Copy the JAR from the build stage (Gradle puts it in build/libs/)
+COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
